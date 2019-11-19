@@ -16,26 +16,26 @@ using System.Windows.Shapes;
 namespace CM
 {
     /// <summary>
-    /// Interaction logic for PersonMarker.xaml
+    /// Interaction logic for ProjectMarker.xaml
     /// </summary>
-    public partial class PersonMarker : UserControl
+    public partial class ProjectMarker : UserControl
     {
-        public PersonMarker()
+        public ProjectMarker()
         {
             InitializeComponent();
         }
 
-        public static readonly DependencyProperty PersonNameProperty = DependencyProperty.Register(
-            "PersonName", typeof(string), typeof(PersonMarker), new PropertyMetadata(default(string)));
+        public static readonly DependencyProperty OccupantsProperty = DependencyProperty.Register(
+            "Occupants", typeof(int), typeof(ProjectMarker), new PropertyMetadata(default(int)));
 
-        public string PersonName
+        public int Occupants
         {
-            get { return (string) GetValue(PersonNameProperty); }
-            set { SetValue(PersonNameProperty, value); }
+            get { return (int) GetValue(OccupantsProperty); }
+            set { SetValue(OccupantsProperty, value); }
         }
 
         public static readonly DependencyProperty FillProperty = DependencyProperty.Register(
-            "Fill", typeof(Brush), typeof(PersonMarker), new PropertyMetadata(default(Brush)));
+            "Fill", typeof(Brush), typeof(ProjectMarker), new PropertyMetadata(default(Brush)));
 
         public Brush Fill
         {

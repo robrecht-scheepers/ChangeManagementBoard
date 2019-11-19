@@ -7,9 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Ellipse Stroke="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=Stroke}" 
-                 StrokeThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=Stroke}"/>
-        <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=Name}" 
+        <Ellipse Stroke="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=Fill}" 
+                 StrokeThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=Fill}"/>
+        <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=PersonName}" 
                    HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="10"/>
     </Grid>
 </UserControl>

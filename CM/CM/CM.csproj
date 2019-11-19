@@ -79,6 +79,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ProjectMarker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MVVM\AsyncRelayCommand.cs" />
@@ -94,6 +98,9 @@
       <DependentUpon>PersonMarker.xaml</DependentUpon>
     </Compile>
     <Compile Include="Position.cs" />
+    <Compile Include="ProjectMarker.xaml.cs">
+      <DependentUpon>ProjectMarker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -18,9 +18,10 @@ namespace CM
     public partial class Board : UserControl
     {
         // ***** Configuration *********************************************************
+        private const string ProjectNamePlaceholder = "_";
         private const int NumberOfPhases = 24;
         private const double MarkerSize = 22;
-        private Dictionary<int, double> _radii = new Dictionary<int, double>
+        private readonly Dictionary<int, double> _radii = new Dictionary<int, double>
         {
             {0, 0.5},
             {1, 0.7},
@@ -28,20 +29,19 @@ namespace CM
             {3, 0.9},
             {4, 1.0} // outer radius
         };
-        private Dictionary<int, Color> _colors = new Dictionary<int, Color>
+        private readonly Dictionary<int, Color> _colors = new Dictionary<int, Color>
         {
-            {0, Color.FromArgb(255,223,239,255) },
-            {1, Color.FromArgb(255,255,201,14) },
-            {2, Color.FromArgb(255,255,127,39) },
-            {3, Color.FromArgb(255,237,28,36) },
+            {0, Color.FromRgb(223,239,255) },
+            {1, Color.FromRgb(255,201,14) },
+            {2, Color.FromRgb(255,127,39) },
+            {3, Color.FromRgb(237,28,36) },
         };
-
-        private Color _defaultLineColor = Color.FromRgb(30, 30, 30);
-        private double _defaultLineThickness = 1;
-        private Color _hoverLineColor = Color.FromRgb(50, 30, 30);
-        private double _hoverLineThickness = 3;
-
         private const double DefaultOpacity = 0.6;
+        private const double HoverOpacity = 1;
+
+        private readonly Color _defaultLineColor = Color.FromRgb(50, 50, 50);
+        private readonly double _defaultLineThickness = 1;
+        private readonly double _hoverLineThickness = 3;
         // *******************************************************************************
 
         private struct PolarPoint
@@ -59,9 +59,9 @@ namespace CM
         private double _canvasWidth;
         private double _canvasHeight;
         private double _actualRadius;
-        private PersonMarker _movingMarker = null;
+        private UserControl _movingMarker = null;
         private Point _movingMarkerOffset;
-        private Dictionary<Position,Shape> _positionShapes = new Dictionary<Position, Shape>();
+        private readonly Dictionary<Position,Shape> _positionShapes = new Dictionary<Position, Shape>();
 
         public static readonly DependencyProperty PersonsProperty = DependencyProperty.Register(
             "Persons", typeof(ObservableCollection<Person>), typeof(Board), new PropertyMetadata(default(ObservableCollection<Person>), PersonsChanged));
@@ -94,8 +94,6 @@ namespace CM
             Canvas.MouseMove += MoveMarker;
             Canvas.MouseLeftButtonUp += EndMarkerMove;
         }
-
-       
 
         private void DrawBoard()
         {
@@ -161,7 +159,7 @@ namespace CM
 
         private void DrawPeople()
         {
-            var markers = Canvas.Children.OfType<PersonMarker>().ToList();
+            var markers = Canvas.Children.OfType<UserControl>().ToList();
             foreach (var marker in markers)
             {
                 Canvas.Children.Remove(marker);
@@ -181,6 +179,7 @@ namespace CM
 
             foreach (var position in positions.Keys)
             {
+                // TODO: refactor to remove duplicate code
                 if (position.Phase == 0)
                 {
                     var xMin = -0.3;
@@ -190,8 +189,8 @@ namespace CM
                     {
                         var marker = new PersonMarker
                         {
-                            Name = positions[position][i],
-                            Stroke = Brushes.Blue,
+                            PersonName = positions[position][i],
+                            Fill = Brushes.Blue,
                             Width = MarkerSize,
                             Height = MarkerSize
                         };
@@ -211,19 +210,37 @@ namespace CM
 
                 for (int i = 0; i < positions[position].Count; i++)
                 {
-                    var marker = new PersonMarker
-                    {
-                        Name = positions[position][i],
-                        Stroke = Brushes.Blue,
-                        Width = MarkerSize,
-                        Height = MarkerSize
-                    };
+                    var name = positions[position][i];
+                    var isProject = name == ProjectNamePlaceholder;
+
+                    UserControl marker = isProject 
+                        ? (UserControl)new ProjectMarker
+                        {
+                            Name = name,
+                            Fill = Brushes.Blue,
+                            Occupants = positions[position].Count - 1
+                        }
+                        : (UserControl)new PersonMarker
+                        {
+                            Name = name,
+                            PersonName = name,
+                            Fill = Brushes.Blue,
+                            Width = MarkerSize,
+                            Height = MarkerSize
+                        };
+
                     var markerPosition = PolarToPoint(radius, angleStart + (i + 1) * angleStep);
-                    markerPosition.Offset(-1*MarkerSize/2, -1*MarkerSize/2);
+                    markerPosition.Offset(-1 * MarkerSize / 2, -1 * MarkerSize / 2);
                     Canvas.Children.Add(marker);
                     Canvas.SetLeft(marker, markerPosition.X);
                     Canvas.SetTop(marker, markerPosition.Y);
 
+                    if (isProject)
+                    {
+                        marker.RenderTransform = new RotateTransform(angleStart + (i + 1) * angleStep);
+                    }
+
+                    
                     marker.MouseLeftButtonDown += BeginMarkerMove;
                 }
             }
@@ -231,7 +248,7 @@ namespace CM
 
         private void BeginMarkerMove(object sender, MouseButtonEventArgs e)
         {
-            _movingMarker = sender as PersonMarker;
+            _movingMarker = sender as UserControl;
             _movingMarkerOffset = e.GetPosition(_movingMarker);
             Canvas.CaptureMouse();
         }
@@ -250,16 +267,19 @@ namespace CM
             {
                 if (position.Equals(hoverPosition))
                 {
-                    _positionShapes[position].Fill.Opacity = 1;
-                    _positionShapes[position].Stroke = new SolidColorBrush(_hoverLineColor);
+                    _positionShapes[position].Fill.Opacity = HoverOpacity;
                     _positionShapes[position].StrokeThickness = _hoverLineThickness;
                 }
                 else
                 {
                     _positionShapes[position].Fill.Opacity = DefaultOpacity;
-                    _positionShapes[position].Stroke = new SolidColorBrush(_defaultLineColor);
                     _positionShapes[position].StrokeThickness = _defaultLineThickness;
                 }
+            }
+
+            if (_movingMarker.Name == ProjectNamePlaceholder)
+            {
+                _movingMarker.RenderTransform = new RotateTransform(PointToPolar(newPoint).Angle);
             }
         }
 
@@ -277,7 +297,6 @@ namespace CM
             foreach (var position in _positionShapes.Keys)
             {
                 _positionShapes[position].Fill.Opacity = DefaultOpacity;
-                _positionShapes[position].Stroke = new SolidColorBrush(_defaultLineColor);
                 _positionShapes[position].StrokeThickness = _defaultLineThickness;
             }
 

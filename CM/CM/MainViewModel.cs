@@ -18,6 +18,11 @@ namespace CM
             {
                 new Person
                 {
+                    Name = "_",
+                    Position = new Position(5,0)
+                },
+                new Person
+                {
                     Name = "RS",
                     Position = new Position(0,0)
                 },
