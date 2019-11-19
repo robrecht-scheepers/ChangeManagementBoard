@@ -17,6 +17,7 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <local:Board Grid.Column="0" Persons="{Binding Persons}" Margin="{StaticResource CommonMargin}"/>
+        <Border Grid.Column="1" BorderThickness="1,0,0,0" Margin="0,5" BorderBrush="White"/>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
