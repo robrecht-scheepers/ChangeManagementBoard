@@ -6,9 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
-using System.Xaml;
 
 namespace CM
 {
@@ -344,7 +342,8 @@ namespace CM
         {
             return radius < _radii[0] ? -1 : radius < _radii[1] ? 0 : radius < _radii[2] ? 1 : radius < _radii[3] ? 2 : 3;
         }
-        
+
+        // coordinate conversions
 
         private Point PolarToPoint(double r, double a)
         {

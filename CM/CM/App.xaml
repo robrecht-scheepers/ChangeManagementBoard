@@ -6,6 +6,20 @@
     <Application.Resources>
          <ResourceDictionary>
              <Thickness x:Key="CommonMargin" Left="5" Top="5" Right="5" Bottom="5"/>
+
+             <Style TargetType="TextBox">
+                 <Setter Property="Margin" Value="{StaticResource CommonMargin}"/>
+                 <Setter Property="FontSize" Value="14"/>
+             </Style>
+             <Style TargetType="Button">
+                 <Setter Property="Margin" Value="{StaticResource CommonMargin}"/>
+                 <Setter Property="Width" Value="30"/>
+                 <Setter Property="Height" Value="30"/>
+             </Style>
+             <Style TargetType="TextBlock">
+                 <Setter Property="Margin" Value="{StaticResource CommonMargin}"/>
+                 <Setter Property="FontSize" Value="14"/>
+             </Style>
          </ResourceDictionary>
     </Application.Resources>
 </Application>

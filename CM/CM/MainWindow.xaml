@@ -16,12 +16,27 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <local:Board Grid.Column="0" Persons="{Binding Persons}" Margin="{StaticResource CommonMargin}"/>
-        <DataGrid Grid.Column="1" ItemsSource="{Binding Persons}" IsReadOnly="True" AutoGenerateColumns="False" CanUserSortColumns="True" Margin="{StaticResource CommonMargin}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="Auto" />
-                <DataGridTextColumn Binding="{Binding Position.Phase}" Header="Phase" Width="Auto" />
-                <DataGridTextColumn Binding="{Binding Position.Resistance}" Header="Wiederstand" Width="Auto" /> 
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding NewPersonName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Grid.Row="0" Grid.Column="1" Background="Blue" Command="{Binding AddPersonCommand}">
+                <Image Source="Resources/icon-plus.png"/>
+            </Button>
+            <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Persons}" IsReadOnly="True" AutoGenerateColumns="False" CanUserSortColumns="True" Margin="{StaticResource CommonMargin}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="Auto" />
+                    <DataGridTextColumn Binding="{Binding Position.Phase}" Header="Phase" Width="Auto" />
+                    <DataGridTextColumn Binding="{Binding Position.Resistance}" Header="Wiederstand" Width="Auto" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+        
     </Grid>
 </Window>
