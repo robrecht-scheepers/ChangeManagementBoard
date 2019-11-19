@@ -60,6 +60,7 @@ namespace CM
         private double _canvasWidth;
         private double _canvasHeight;
         private double _actualRadius;
+        private Point _actualPole;
         private UserControl _movingMarker = null;
         private Point _movingMarkerOffset;
         private readonly Dictionary<Position,Shape> _positionShapes = new Dictionary<Position, Shape>();
@@ -104,6 +105,7 @@ namespace CM
             _canvasWidth = Canvas.ActualWidth;
             _canvasHeight = Canvas.ActualHeight;
             _actualRadius = Math.Min(_canvasWidth, _canvasHeight) / 2;
+            _actualPole = new Point(_canvasWidth / 2, _canvasHeight / 2);
 
             var boardBackground = new Ellipse
             {
@@ -346,21 +348,21 @@ namespace CM
 
         private Point PolarToPoint(double r, double a)
         {
-            var x = _actualRadius * (1 + r * Math.Sin(a * Math.PI / 180));
-            var y = _actualRadius * (1 - r * Math.Cos(a * Math.PI / 180));
+            var x = _actualPole.X + _actualRadius * r * Math.Sin(a * Math.PI / 180);
+            var y = _actualPole.Y - _actualRadius * r * Math.Cos(a * Math.PI / 180);
 
             return new Point(x, y);
         }
 
         private Point CarthesianToPoint(double x, double y)
         {
-            return new Point(_actualRadius + x*_actualRadius, _actualRadius - y*_actualRadius);
+            return new Point(_actualPole.X + x*_actualRadius, _actualPole.Y - y*_actualRadius);
         }
 
         private PolarPoint PointToPolar(Point point)
         {
-            var x = point.X / _actualRadius - 1;
-            var y = 1 - point.Y / _actualRadius;
+            var x = (point.X - _actualPole.X)  / _actualRadius;
+            var y = (_actualPole.Y - point.Y) / _actualRadius;
 
             var radius = Math.Sqrt(x * x + y * y);
             var angle = Math.Atan(y / x) * 180 / Math.PI;
