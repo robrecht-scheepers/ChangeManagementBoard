@@ -70,9 +70,9 @@ namespace CM
         private static void PersonsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var me = (Board) d;
-            me.Persons.CollectionChanged += (s, a) => me.DrawPeople();
+            me.Persons.CollectionChanged += (s, a) => me.DrawMarkers();
 
-            me.DrawPeople();
+            me.DrawMarkers();
         }
 
         public ObservableCollection<Person> Persons
@@ -165,10 +165,10 @@ namespace CM
                 Canvas.SetTop(label, labelPosition.Y);
             }
 
-            DrawPeople();
+            DrawMarkers();
         }
 
-        private void DrawPeople()
+        private void DrawMarkers()
         {
             var markers = Canvas.Children.OfType<UserControl>().ToList();
             foreach (var marker in markers)
@@ -321,7 +321,7 @@ namespace CM
                 newPosition.Resistance = 0;
 
             Persons.First(x => x.Name == name).Position = newPosition; 
-            DrawPeople();
+            DrawMarkers();
         }
 
         private Position PointToPosition(Point point)
