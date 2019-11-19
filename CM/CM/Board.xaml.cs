@@ -21,6 +21,7 @@ namespace CM
         private const string ProjectNamePlaceholder = "_";
         private const int NumberOfPhases = 24;
         private const double MarkerSize = 22;
+        private readonly Color _markerColor = Colors.Blue;
         private readonly Dictionary<int, double> _radii = new Dictionary<int, double>
         {
             {0, 0.5},
@@ -179,7 +180,34 @@ namespace CM
 
             foreach (var position in positions.Keys)
             {
-                // TODO: refactor to remove duplicate code
+                var radius = ResistanceToRadius(position.Resistance);
+                var angleStart = (position.Phase - 1) * 360 / (double)NumberOfPhases;
+                var angleEnd = position.Phase * 360 / (double)NumberOfPhases;
+
+                if (positions[position].Contains(ProjectNamePlaceholder))
+                {
+                    var marker = new ProjectMarker
+                    {
+                        Name = ProjectNamePlaceholder,
+                        Fill = new SolidColorBrush(_markerColor),
+                        Occupants = positions[position].Count - 1
+                    };
+
+                    if (marker.Occupants > 0)
+                    {
+                        marker.ToolTip = string.Join(",", positions[position].Where(x => x != ProjectNamePlaceholder));
+                    }
+
+                    var markerPosition = PolarToPoint(radius, (angleStart + angleEnd)/2);
+                    markerPosition.Offset(-1 * MarkerSize / 2, -1 * MarkerSize / 2);
+                    Canvas.Children.Add(marker);
+                    Canvas.SetLeft(marker, markerPosition.X);
+                    Canvas.SetTop(marker, markerPosition.Y);
+                    marker.LayoutTransform = new RotateTransform((angleStart + angleEnd) / 2);
+                    marker.MouseLeftButtonDown += BeginMarkerMove;
+                    continue;
+                }
+                
                 if (position.Phase == 0)
                 {
                     var xMin = -0.3;
@@ -189,8 +217,8 @@ namespace CM
                     {
                         var marker = new PersonMarker
                         {
-                            PersonName = positions[position][i],
-                            Fill = Brushes.Blue,
+                            Name = positions[position][i],
+                            Fill = new SolidColorBrush(_markerColor),
                             Width = MarkerSize,
                             Height = MarkerSize
                         };
@@ -203,44 +231,23 @@ namespace CM
                     continue;
                 }
 
-                var radius = ResistanceToRadius(position.Resistance);
-                var angleStart = (position.Phase - 1) * 360 / (double)NumberOfPhases;
-                var angleEnd = position.Phase * 360 / (double)NumberOfPhases;
                 var angleStep = (angleEnd - angleStart) / (positions[position].Count + 1);
-
                 for (int i = 0; i < positions[position].Count; i++)
                 {
                     var name = positions[position][i];
-                    var isProject = name == ProjectNamePlaceholder;
-
-                    UserControl marker = isProject 
-                        ? (UserControl)new ProjectMarker
-                        {
-                            Name = name,
-                            Fill = Brushes.Blue,
-                            Occupants = positions[position].Count - 1
-                        }
-                        : (UserControl)new PersonMarker
-                        {
-                            Name = name,
-                            PersonName = name,
-                            Fill = Brushes.Blue,
-                            Width = MarkerSize,
-                            Height = MarkerSize
-                        };
+                    var marker = new PersonMarker
+                    {
+                        Name = name,
+                        Fill = new SolidColorBrush(_markerColor),
+                        Width = MarkerSize,
+                        Height = MarkerSize
+                    };
 
                     var markerPosition = PolarToPoint(radius, angleStart + (i + 1) * angleStep);
                     markerPosition.Offset(-1 * MarkerSize / 2, -1 * MarkerSize / 2);
                     Canvas.Children.Add(marker);
                     Canvas.SetLeft(marker, markerPosition.X);
                     Canvas.SetTop(marker, markerPosition.Y);
-
-                    if (isProject)
-                    {
-                        marker.RenderTransform = new RotateTransform(angleStart + (i + 1) * angleStep);
-                    }
-
-                    
                     marker.MouseLeftButtonDown += BeginMarkerMove;
                 }
             }
@@ -279,7 +286,7 @@ namespace CM
 
             if (_movingMarker.Name == ProjectNamePlaceholder)
             {
-                _movingMarker.RenderTransform = new RotateTransform(PointToPolar(newPoint).Angle);
+                _movingMarker.LayoutTransform = new RotateTransform(PointToPolar(newPoint).Angle);
             }
         }
 

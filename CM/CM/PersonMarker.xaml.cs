@@ -25,15 +25,6 @@ namespace CM
             InitializeComponent();
         }
 
-        public static readonly DependencyProperty PersonNameProperty = DependencyProperty.Register(
-            "PersonName", typeof(string), typeof(PersonMarker), new PropertyMetadata(default(string)));
-
-        public string PersonName
-        {
-            get { return (string) GetValue(PersonNameProperty); }
-            set { SetValue(PersonNameProperty, value); }
-        }
-
         public static readonly DependencyProperty FillProperty = DependencyProperty.Register(
             "Fill", typeof(Brush), typeof(PersonMarker), new PropertyMetadata(default(Brush)));
 

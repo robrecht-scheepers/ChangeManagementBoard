@@ -9,7 +9,7 @@
     <Grid>
         <Ellipse Stroke="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=Fill}" 
                  StrokeThickness="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=Fill}"/>
-        <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=PersonName}" 
+        <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=local:PersonMarker}, Path=Name}" 
                    HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="10"/>
     </Grid>
 </UserControl>

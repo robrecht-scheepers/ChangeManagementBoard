@@ -24,7 +24,8 @@
           </PathGeometry>
         </Path.Data>
       </Path>
+      <TextBlock Canvas.Left="8" Canvas.Top="2" Text="{Binding RelativeSource={RelativeSource AncestorType=local:ProjectMarker}, Path=Occupants}" Foreground="White"/>
     </Canvas>
-    <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=local:ProjectMarker}, Path=Occupants}" HorizontalAlignment="Center" Foreground="White"/>
+
   </Grid>
 </UserControl>
