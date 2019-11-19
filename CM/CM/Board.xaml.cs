@@ -17,27 +17,15 @@ namespace CM
     /// </summary>
     public partial class Board : UserControl
     {
-        private struct PolarPoint
-        {
-            public double Radius { get; }
-            public double Angle { get; }
-
-            public PolarPoint(double radius, double angle)
-            {
-                Radius = radius;
-                Angle = angle;
-            }
-        }
-
         // ***** Configuration *********************************************************
         private const int NumberOfPhases = 24;
         private const double MarkerSize = 22;
         private Dictionary<int, double> _radii = new Dictionary<int, double>
         {
-            {0,0.5},
-            {1,0.7},
-            {2,0.8},
-            {3,0.9},
+            {0, 0.5},
+            {1, 0.7},
+            {2, 0.8},
+            {3, 0.9},
             {4, 1.0} // outer radius
         };
         private Dictionary<int, Color> _colors = new Dictionary<int, Color>
@@ -50,22 +38,30 @@ namespace CM
 
         private Color _defaultLineColor = Color.FromRgb(30, 30, 30);
         private double _defaultLineThickness = 1;
-        private Color _hoverLineColor = Color.FromRgb(50,30,30);
+        private Color _hoverLineColor = Color.FromRgb(50, 30, 30);
         private double _hoverLineThickness = 3;
 
         private const double DefaultOpacity = 0.6;
         // *******************************************************************************
 
+        private struct PolarPoint
+        {
+            public double Radius { get; }
+            public double Angle { get; }
+
+            public PolarPoint(double radius, double angle)
+            {
+                Radius = radius;
+                Angle = angle;
+            }
+        }
 
         private double _canvasWidth;
         private double _canvasHeight;
         private double _actualRadius;
-
         private PersonMarker _movingMarker = null;
         private Point _movingMarkerOffset;
-
         private Dictionary<Position,Shape> _positionShapes = new Dictionary<Position, Shape>();
-        
 
         public static readonly DependencyProperty PersonsProperty = DependencyProperty.Register(
             "Persons", typeof(ObservableCollection<Person>), typeof(Board), new PropertyMetadata(default(ObservableCollection<Person>), PersonsChanged));
