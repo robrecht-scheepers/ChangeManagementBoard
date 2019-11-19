@@ -26,7 +26,11 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding NewPersonName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+          <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding NewPersonName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+              <TextBox.InputBindings>
+                  <KeyBinding Key="Enter" Command="{Binding AddPersonCommand}"/>
+              </TextBox.InputBindings>
+          </TextBox>
             <Button Grid.Row="0" Grid.Column="1" Background="#009CDE" Command="{Binding AddPersonCommand}">
                 <Image Source="Resources/icon-plus.png"/>
             </Button>

@@ -345,6 +345,15 @@ namespace CM
                 newPosition.Resistance = 0;
                 if (newPosition.Phase == 0)
                     newPosition.Phase = Persons.First(x => x.Name == name).Position.Phase; // put back if accidentally moved to middle
+
+                if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                {
+                    var oldProjectPosition = Persons.First(x => x.Name == name).Position;
+                    foreach (var person in Persons.Where(x => x.Position.Equals(oldProjectPosition))) // se Ctrl to move the boat with occupants
+                    {
+                        person.Position = newPosition;
+                    }
+                }
             }
 
             Persons.First(x => x.Name == name).Position = newPosition; 
