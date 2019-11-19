@@ -33,5 +33,7 @@ namespace CM
             get { return (Brush) GetValue(FillProperty); }
             set { SetValue(FillProperty, value); }
         }
+
+       
     }
 }

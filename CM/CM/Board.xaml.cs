@@ -18,7 +18,6 @@ namespace CM
         // ***** Configuration *********************************************************
         private const string ProjectNamePlaceholder = "_";
         private const int NumberOfPhases = 24;
-        private const double MarkerSize = 22;
         private readonly Color _markerColor = Color.FromRgb(0, 58, 112);
         private readonly Dictionary<int, double> _radii = new Dictionary<int, double>
         {
@@ -59,6 +58,8 @@ namespace CM
         private double _canvasHeight;
         private double _actualRadius;
         private Point _actualPole;
+        private double _markerSize;
+        private double _markerFontSize;
         private UserControl _movingMarker = null;
         private Point _movingMarkerOffset;
         private readonly Dictionary<Position,Shape> _positionShapes = new Dictionary<Position, Shape>();
@@ -104,7 +105,7 @@ namespace CM
             _canvasHeight = Canvas.ActualHeight;
             _actualRadius = Math.Min(_canvasWidth, _canvasHeight) / 2;
             _actualPole = new Point(_canvasWidth / 2, _canvasHeight / 2);
-
+            
             var boardBackground = new Ellipse
             {
                 Height = 2*_actualRadius,
@@ -179,6 +180,11 @@ namespace CM
             if(Persons == null || !Persons.Any())
                 return;
 
+            // markers scale with the board
+            _markerSize = _actualRadius / 15;
+            _markerFontSize = 1.5 * (Math.Ceiling(_markerSize / 5));
+
+
             var positions = new Dictionary<Position, List<string>>();
             foreach (var person in Persons)
             {
@@ -209,11 +215,19 @@ namespace CM
                     }
 
                     var markerPosition = PolarToPoint(radius, (angleStart + angleEnd)/2);
-                    markerPosition.Offset(-1 * MarkerSize / 2, -1 * MarkerSize / 2);
+                    markerPosition.Offset(-1 * _markerSize / 2, -1 * _markerSize / 2);
                     Canvas.Children.Add(marker);
                     Canvas.SetLeft(marker, markerPosition.X);
                     Canvas.SetTop(marker, markerPosition.Y);
-                    marker.LayoutTransform = new RotateTransform((angleStart + angleEnd) / 2);
+                    marker.RenderTransform = new TransformGroup
+                    {
+                        Children = new TransformCollection
+                        {
+                            new ScaleTransform(_markerSize/20, _markerSize/20),
+                            new RotateTransform((angleStart + angleEnd) / 2)
+                        },
+                    }; 
+
                     marker.MouseLeftButtonDown += BeginMarkerMove;
                     continue;
                 }
@@ -229,8 +243,9 @@ namespace CM
                         {
                             Name = positions[position][i],
                             Fill = new SolidColorBrush(_markerColor),
-                            Width = MarkerSize,
-                            Height = MarkerSize
+                            FontSize = _markerFontSize,
+                            Width = _markerSize,
+                            Height = _markerSize
                         };
                         Canvas.Children.Add(marker);
                         var markerPosition = CarthesianToPoint(xMin + (i + 1) * xStep, 0);
@@ -249,12 +264,13 @@ namespace CM
                     {
                         Name = name,
                         Fill = new SolidColorBrush(_markerColor),
-                        Width = MarkerSize,
-                        Height = MarkerSize
+                        FontSize = _markerFontSize,
+                        Width = _markerSize,
+                        Height = _markerSize
                     };
 
                     var markerPosition = PolarToPoint(radius, angleStart + (i + 1) * angleStep);
-                    markerPosition.Offset(-1 * MarkerSize / 2, -1 * MarkerSize / 2);
+                    markerPosition.Offset(-1 * _markerSize / 2, -1 * _markerSize / 2);
                     Canvas.Children.Add(marker);
                     Canvas.SetLeft(marker, markerPosition.X);
                     Canvas.SetTop(marker, markerPosition.Y);
@@ -296,7 +312,14 @@ namespace CM
 
             if (_movingMarker.Name == ProjectNamePlaceholder)
             {
-                _movingMarker.LayoutTransform = new RotateTransform(PointToPolar(newPoint).Angle);
+                _movingMarker.RenderTransform = new TransformGroup
+                {
+                    Children = new TransformCollection
+                    {
+                        new ScaleTransform(_markerSize/20, _markerSize/20),
+                        new RotateTransform(PointToPolar(newPoint).Angle)
+                    },
+                }; 
             }
         }
 

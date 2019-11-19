@@ -31,7 +31,7 @@
             </Button>
             <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Persons}" 
                       IsReadOnly="True" AutoGenerateColumns="False" CanUserSortColumns="True" Margin="{StaticResource CommonMargin}" 
-                      Background="Transparent" BorderThickness="0" AlternatingRowBackground="LightBlue" >
+                      Background="Transparent" BorderThickness="0" AlternatingRowBackground="AliceBlue" RowHeaderWidth="0" >
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="Auto" />
                     <DataGridTextColumn Binding="{Binding Position.Phase}" Header="Phase" Width="Auto" />
