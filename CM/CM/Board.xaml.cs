@@ -19,8 +19,8 @@ namespace CM
     {
         private struct PolarPoint
         {
-            public double Radius { get; set; }
-            public double Angle { get; set; }
+            public double Radius { get; }
+            public double Angle { get; }
 
             public PolarPoint(double radius, double angle)
             {
@@ -29,8 +29,33 @@ namespace CM
             }
         }
 
+        // ***** Configuration *********************************************************
         private const int NumberOfPhases = 24;
-        private const double MarkerSize = 20;
+        private const double MarkerSize = 22;
+        private Dictionary<int, double> _radii = new Dictionary<int, double>
+        {
+            {0,0.5},
+            {1,0.7},
+            {2,0.8},
+            {3,0.9},
+            {4, 1.0} // outer radius
+        };
+        private Dictionary<int, Color> _colors = new Dictionary<int, Color>
+        {
+            {0, Color.FromArgb(255,223,239,255) },
+            {1, Color.FromArgb(255,255,201,14) },
+            {2, Color.FromArgb(255,255,127,39) },
+            {3, Color.FromArgb(255,237,28,36) },
+        };
+
+        private Color _defaultLineColor = Color.FromRgb(30, 30, 30);
+        private double _defaultLineThickness = 1;
+        private Color _hoverLineColor = Color.FromRgb(50,30,30);
+        private double _hoverLineThickness = 3;
+
+        private const double DefaultOpacity = 0.6;
+        // *******************************************************************************
+
 
         private double _canvasWidth;
         private double _canvasHeight;
@@ -39,14 +64,8 @@ namespace CM
         private PersonMarker _movingMarker = null;
         private Point _movingMarkerOffset;
 
-        private Dictionary<int,double> _radii = new Dictionary<int, double>
-        {
-            {0,0.5},
-            {1,0.7},
-            {2,0.8},
-            {3,0.9},
-            {4, 1.0} 
-        };
+        private Dictionary<Position,Shape> _positionShapes = new Dictionary<Position, Shape>();
+        
 
         public static readonly DependencyProperty PersonsProperty = DependencyProperty.Register(
             "Persons", typeof(ObservableCollection<Person>), typeof(Board), new PropertyMetadata(default(ObservableCollection<Person>), PersonsChanged));
@@ -85,29 +104,11 @@ namespace CM
         private void DrawBoard()
         {
             Canvas.Children.Clear();
+            _positionShapes.Clear();
 
             _canvasWidth = Canvas.ActualWidth;
             _canvasHeight = Canvas.ActualHeight;
             _actualRadius = Math.Min(_canvasWidth, _canvasHeight) / 2;
-
-            //DrawCircle(1, Brushes.DarkRed);
-            //DrawCircle(0.9, Brushes.SandyBrown);
-            //DrawCircle(0.8, Brushes.LightYellow);
-            //DrawCircle(0.7, Brushes.White);
-            //DrawCircle(0.5, Brushes.White);
-
-            //for (int phase = 0; phase < NumberOfPhases; phase++)
-            //{
-            //    var angle = phase * 360 / (double)NumberOfPhases;
-            //    Canvas.Children.Add(LineFromPolar(0.5, angle, 1, angle));
-
-            //    var label = new TextBlock {Text = (phase + 1).ToString(), FontSize = 12};
-            //    Canvas.Children.Add(label);
-            //    var labelPosition = PolarToPoint(0.45, (phase + 0.5) * 360 / NumberOfPhases);
-            //    labelPosition.Offset(-8, -8);
-            //    Canvas.SetLeft(label, labelPosition.X);
-            //    Canvas.SetTop(label, labelPosition.Y);
-            //}
 
             for(var phase = 1; phase <= NumberOfPhases; phase++)
             {
@@ -118,11 +119,12 @@ namespace CM
                 {
                     var lowRadius = _radii[res];
                     var highRadius = _radii[res + 1];
-
+                    
                     var shape = new Path
                     {
-                        Stroke = Brushes.Black,
-                        StrokeThickness = 1,
+                        Stroke = new SolidColorBrush(_defaultLineColor),
+                        StrokeThickness = _defaultLineThickness,
+                        Fill = new SolidColorBrush(_colors[res]) {Opacity = DefaultOpacity},
                         Data = new PathGeometry
                         {
                             Figures = new PathFigureCollection
@@ -147,33 +149,18 @@ namespace CM
                         }
                     };
                     Canvas.Children.Add(shape);
+                    _positionShapes[new Position(phase, res)] = shape;
                 }
 
-                var label = new TextBlock { Text = phase.ToString(), FontSize = 12 };
+                var label = new TextBlock { Text = phase.ToString(), FontSize = 14 };
                 Canvas.Children.Add(label);
                 var labelPosition = PolarToPoint(_radii[0] - 0.05, (phase - 0.5) * 360 / NumberOfPhases);
-                labelPosition.Offset(-8, -8);
+                labelPosition.Offset(-10, -10);
                 Canvas.SetLeft(label, labelPosition.X);
                 Canvas.SetTop(label, labelPosition.Y);
             }
 
             DrawPeople();
-        }
-
-        private void DrawCircle(double radius, Brush background = null, double opacity = 1)
-        {
-            var circle = new Ellipse
-            {
-                Width = 2 * _actualRadius * radius,
-                Height = 2 * _actualRadius * radius,
-                Stroke = Brushes.Black,
-                StrokeThickness = 1,
-                Fill = background ?? Brushes.Transparent,
-                
-            };
-            Canvas.Children.Add(circle);
-            Canvas.SetLeft(circle, _actualRadius * (1 - radius));
-            Canvas.SetTop(circle, _actualRadius * (1 - radius));
         }
 
         private void DrawPeople()
@@ -224,9 +211,6 @@ namespace CM
                 var radius = ResistanceToRadius(position.Resistance);
                 var angleStart = (position.Phase - 1) * 360 / (double)NumberOfPhases;
                 var angleEnd = position.Phase * 360 / (double)NumberOfPhases;
-
-                
-
                 var angleStep = (angleEnd - angleStart) / (positions[position].Count + 1);
 
                 for (int i = 0; i < positions[position].Count; i++)
@@ -261,10 +245,26 @@ namespace CM
             if (_movingMarker == null)
                 return;
 
-            var newPosition = e.GetPosition(Canvas);
+            var newPoint = e.GetPosition(Canvas);
+            Canvas.SetLeft(_movingMarker, newPoint.X - _movingMarkerOffset.X);
+            Canvas.SetTop(_movingMarker, newPoint.Y - _movingMarkerOffset.Y);
 
-            Canvas.SetLeft(_movingMarker, newPosition.X - _movingMarkerOffset.X);
-            Canvas.SetTop(_movingMarker, newPosition.Y - _movingMarkerOffset.Y);
+            var hoverPosition = PointToPosition(newPoint);
+            foreach (var position in _positionShapes.Keys)
+            {
+                if (position.Equals(hoverPosition))
+                {
+                    _positionShapes[position].Fill.Opacity = 1;
+                    _positionShapes[position].Stroke = new SolidColorBrush(_hoverLineColor);
+                    _positionShapes[position].StrokeThickness = _hoverLineThickness;
+                }
+                else
+                {
+                    _positionShapes[position].Fill.Opacity = DefaultOpacity;
+                    _positionShapes[position].Stroke = new SolidColorBrush(_defaultLineColor);
+                    _positionShapes[position].StrokeThickness = _defaultLineThickness;
+                }
+            }
         }
 
         private void EndMarkerMove(object sender, MouseButtonEventArgs e)
@@ -278,6 +278,12 @@ namespace CM
             var name = _movingMarker.Name;
 
             _movingMarker = null;
+            foreach (var position in _positionShapes.Keys)
+            {
+                _positionShapes[position].Fill.Opacity = DefaultOpacity;
+                _positionShapes[position].Stroke = new SolidColorBrush(_defaultLineColor);
+                _positionShapes[position].StrokeThickness = _defaultLineThickness;
+            }
 
             Persons.First(x => x.Name == name).Position = PointToPosition(markerCenterPosition);
             DrawPeople();
