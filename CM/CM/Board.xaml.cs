@@ -375,22 +375,5 @@ namespace CM
 
             return new PolarPoint(radius,angle);
         }
-
-        private Line LineFromPolar(double r1, double a1, double r2, double a2)
-        {
-            var point1 = PolarToPoint(r1, a1);
-            var point2 = PolarToPoint(r2, a2);
-
-            return new Line
-            {
-                X1 = point1.X,
-                Y1 = point1.Y,
-                X2 = point2.X,
-                Y2 = point2.Y,
-                Stroke = Brushes.Black,
-                StrokeThickness = 1
-            };
-        }
-        
     }
 }
