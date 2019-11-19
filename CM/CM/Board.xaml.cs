@@ -300,24 +300,12 @@ namespace CM
 
         private double ResistanceToRadius(int resistance)
         {
-            switch (resistance)
-            {
-                case 0:
-                    return 0.6;
-                case 1:
-                    return 0.75;
-                case 2:
-                    return 0.85;
-                case 3:
-                    return 0.95;
-                default:
-                    throw new ArgumentException("Invalid resistance level");
-            }
+            return (_radii[resistance] + _radii[resistance + 1]) / 2;
         }
 
         private int RadiusToResistance(double radius)
         {
-            return radius < 0.5 ? -1 : radius < 0.7 ? 0 : radius < 0.8 ? 1 : radius < 0.9 ? 2 : 3;
+            return radius < _radii[0] ? -1 : radius < _radii[1] ? 0 : radius < _radii[2] ? 1 : radius < _radii[3] ? 2 : 3;
         }
         
 
