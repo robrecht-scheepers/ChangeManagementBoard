@@ -39,6 +39,15 @@ namespace CM
         private PersonMarker _movingMarker = null;
         private Point _movingMarkerOffset;
 
+        private Dictionary<int,double> _radii = new Dictionary<int, double>
+        {
+            {0,0.5},
+            {1,0.7},
+            {2,0.8},
+            {3,0.9},
+            {4, 1.0} 
+        };
+
         public static readonly DependencyProperty PersonsProperty = DependencyProperty.Register(
             "Persons", typeof(ObservableCollection<Person>), typeof(Board), new PropertyMetadata(default(ObservableCollection<Person>), PersonsChanged));
 
@@ -81,20 +90,68 @@ namespace CM
             _canvasHeight = Canvas.ActualHeight;
             _actualRadius = Math.Min(_canvasWidth, _canvasHeight) / 2;
 
-            DrawCircle(1, Brushes.DarkRed);
-            DrawCircle(0.9, Brushes.SandyBrown);
-            DrawCircle(0.8, Brushes.LightYellow);
-            DrawCircle(0.7, Brushes.White);
-            DrawCircle(0.5, Brushes.White);
+            //DrawCircle(1, Brushes.DarkRed);
+            //DrawCircle(0.9, Brushes.SandyBrown);
+            //DrawCircle(0.8, Brushes.LightYellow);
+            //DrawCircle(0.7, Brushes.White);
+            //DrawCircle(0.5, Brushes.White);
 
-            for (int phase = 0; phase < NumberOfPhases; phase++)
+            //for (int phase = 0; phase < NumberOfPhases; phase++)
+            //{
+            //    var angle = phase * 360 / (double)NumberOfPhases;
+            //    Canvas.Children.Add(LineFromPolar(0.5, angle, 1, angle));
+
+            //    var label = new TextBlock {Text = (phase + 1).ToString(), FontSize = 12};
+            //    Canvas.Children.Add(label);
+            //    var labelPosition = PolarToPoint(0.45, (phase + 0.5) * 360 / NumberOfPhases);
+            //    labelPosition.Offset(-8, -8);
+            //    Canvas.SetLeft(label, labelPosition.X);
+            //    Canvas.SetTop(label, labelPosition.Y);
+            //}
+
+            for(var phase = 1; phase <= NumberOfPhases; phase++)
             {
-                var angle = phase * 360 / (double)NumberOfPhases;
-                Canvas.Children.Add(LineFromPolar(0.5, angle, 1, angle));
+                var lowAngle = (phase - 1) * 360 / NumberOfPhases;
+                var highAngle = phase * 360 / NumberOfPhases;
 
-                var label = new TextBlock {Text = (phase + 1).ToString(), FontSize = 12};
+                for (var res = 0; res <= 3; res++)
+                {
+                    var lowRadius = _radii[res];
+                    var highRadius = _radii[res + 1];
+
+                    var shape = new Path
+                    {
+                        Stroke = Brushes.Black,
+                        StrokeThickness = 1,
+                        Data = new PathGeometry
+                        {
+                            Figures = new PathFigureCollection
+                            {
+                                new PathFigure
+                                {
+                                    IsClosed = true,
+                                    StartPoint = PolarToPoint(lowRadius, lowAngle),
+                                    Segments = new PathSegmentCollection
+                                    {
+                                        new LineSegment(PolarToPoint(highRadius, lowAngle), true),
+                                        new ArcSegment(PolarToPoint(highRadius, highAngle),
+                                            new Size(highRadius * _actualRadius, highRadius * _actualRadius),
+                                            0, false, SweepDirection.Clockwise, true),
+                                        new LineSegment(PolarToPoint(lowRadius, highAngle), true),
+                                        new ArcSegment(PolarToPoint(lowRadius, lowAngle),
+                                            new Size(lowRadius * _actualRadius, lowRadius * _actualRadius),
+                                            0, false, SweepDirection.Counterclockwise, true),
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    Canvas.Children.Add(shape);
+                }
+
+                var label = new TextBlock { Text = phase.ToString(), FontSize = 12 };
                 Canvas.Children.Add(label);
-                var labelPosition = PolarToPoint(0.45, (phase + 0.5) * 360 / NumberOfPhases);
+                var labelPosition = PolarToPoint(_radii[0] - 0.05, (phase - 0.5) * 360 / NumberOfPhases);
                 labelPosition.Offset(-8, -8);
                 Canvas.SetLeft(label, labelPosition.X);
                 Canvas.SetTop(label, labelPosition.Y);
