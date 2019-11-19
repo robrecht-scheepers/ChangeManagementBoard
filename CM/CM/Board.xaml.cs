@@ -341,7 +341,11 @@ namespace CM
 
             var newPosition = PointToPosition(newPoint);
             if (name == ProjectNamePlaceholder)
+            {
                 newPosition.Resistance = 0;
+                if (newPosition.Phase == 0)
+                    newPosition.Phase = Persons.First(x => x.Name == name).Position.Phase; // put back if accidentally moved to middle
+            }
 
             Persons.First(x => x.Name == name).Position = newPosition; 
             DrawMarkers();

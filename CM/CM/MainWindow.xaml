@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CM"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="800"
+        Title="MainWindow" Height="700" Width="900"
+        WindowState="Maximized"
         d:DataContext="{d:DesignInstance local:MainViewModel}">
     <Window.Background>
         <ImageBrush ImageSource="Resources/bg.png"/>

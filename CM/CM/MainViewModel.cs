@@ -22,7 +22,7 @@ namespace CM
                 new Person
                 {
                     Name = "_",
-                    Position = new Position(5,0)
+                    Position = new Position(1,0)
                 },
                 new Person
                 {
