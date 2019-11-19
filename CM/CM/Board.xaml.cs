@@ -21,7 +21,7 @@ namespace CM
         private const string ProjectNamePlaceholder = "_";
         private const int NumberOfPhases = 24;
         private const double MarkerSize = 22;
-        private readonly Color _markerColor = Colors.Blue;
+        private readonly Color _markerColor = Color.FromRgb(0, 58, 112);
         private readonly Dictionary<int, double> _radii = new Dictionary<int, double>
         {
             {0, 0.5},
@@ -105,7 +105,17 @@ namespace CM
             _canvasHeight = Canvas.ActualHeight;
             _actualRadius = Math.Min(_canvasWidth, _canvasHeight) / 2;
 
-            for(var phase = 1; phase <= NumberOfPhases; phase++)
+            var boardBackground = new Ellipse
+            {
+                Height = 2*_actualRadius,
+                Width = 2*_actualRadius,
+                Fill = Brushes.White
+            };
+            Canvas.Children.Add(boardBackground);
+            Canvas.SetLeft(boardBackground, PolarToPoint(1,270).X);
+            Canvas.SetTop(boardBackground, PolarToPoint(1, 0).Y);
+
+            for (var phase = 1; phase <= NumberOfPhases; phase++)
             {
                 var lowAngle = (phase - 1) * 360 / NumberOfPhases;
                 var highAngle = phase * 360 / NumberOfPhases;
@@ -295,9 +305,8 @@ namespace CM
             Canvas.ReleaseMouseCapture();
             if(_movingMarker == null)
                 return;
-            
-            var markerCenterPosition = e.GetPosition(Canvas);
-            markerCenterPosition.Offset(MarkerSize/2 - _movingMarkerOffset.X, MarkerSize/2 - _movingMarkerOffset.Y);
+
+            var newPoint = e.GetPosition(Canvas);
             var name = _movingMarker.Name;
 
             _movingMarker = null;
@@ -307,7 +316,11 @@ namespace CM
                 _positionShapes[position].StrokeThickness = _defaultLineThickness;
             }
 
-            Persons.First(x => x.Name == name).Position = PointToPosition(markerCenterPosition);
+            var newPosition = PointToPosition(newPoint);
+            if (name == ProjectNamePlaceholder)
+                newPosition.Resistance = 0;
+
+            Persons.First(x => x.Name == name).Position = newPosition; 
             DrawPeople();
         }
 

@@ -7,6 +7,9 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="800"
         d:DataContext="{d:DesignInstance local:MainViewModel}">
+    <Window.Background>
+        <ImageBrush ImageSource="Resources/bg.png"/>
+    </Window.Background>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
