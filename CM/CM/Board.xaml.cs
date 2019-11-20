@@ -219,14 +219,15 @@ namespace CM
                     Canvas.Children.Add(marker);
                     Canvas.SetLeft(marker, markerPosition.X);
                     Canvas.SetTop(marker, markerPosition.Y);
-                    marker.RenderTransform = new TransformGroup
-                    {
-                        Children = new TransformCollection
-                        {
-                            new ScaleTransform(_markerSize/20, _markerSize/20),
-                            new RotateTransform((angleStart + angleEnd) / 2)
-                        },
-                    }; 
+                    marker.Rotation = (angleStart + angleEnd) / 2;
+                    //marker.RenderTransform = new TransformGroup
+                    //{
+                    //    Children = new TransformCollection
+                    //    {
+                    //        new ScaleTransform(_markerSize/20, _markerSize/20),
+                    //        new RotateTransform((angleStart + angleEnd) / 2)
+                    //    },
+                    //}; 
 
                     marker.MouseLeftButtonDown += BeginMarkerMove;
                     continue;
@@ -312,14 +313,7 @@ namespace CM
 
             if (_movingMarker.Name == ProjectNamePlaceholder)
             {
-                _movingMarker.RenderTransform = new TransformGroup
-                {
-                    Children = new TransformCollection
-                    {
-                        new ScaleTransform(_markerSize/20, _markerSize/20),
-                        new RotateTransform(PointToPolar(newPoint).Angle)
-                    },
-                }; 
+                ((ProjectMarker) _movingMarker).Rotation = PointToPolar(newPoint).Angle;
             }
         }
 

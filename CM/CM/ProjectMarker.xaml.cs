@@ -42,5 +42,14 @@ namespace CM
             get { return (Brush) GetValue(FillProperty); }
             set { SetValue(FillProperty, value); }
         }
+
+        public static readonly DependencyProperty RotationProperty = DependencyProperty.Register(
+            "Rotation", typeof(double), typeof(ProjectMarker), new PropertyMetadata(default(double)));
+
+        public double Rotation
+        {
+            get { return (double) GetValue(RotationProperty); }
+            set { SetValue(RotationProperty, value); }
+        }
     }
 }

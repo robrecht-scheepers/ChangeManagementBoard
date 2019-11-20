@@ -7,8 +7,11 @@
              mc:Ignorable="d"
              d:DesignHeight="20" d:DesignWidth="30">
   <Grid>
-    <Canvas>
-      <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=local:ProjectMarker}, Path=Fill}">
+    <Canvas RenderTransformOrigin="0.5,0.5">
+        <Canvas.RenderTransform>
+            <RotateTransform Angle="{Binding RelativeSource={RelativeSource AncestorType=local:ProjectMarker}, Path=Rotation}"/>
+        </Canvas.RenderTransform>
+        <Path Fill="{Binding RelativeSource={RelativeSource AncestorType=local:ProjectMarker}, Path=Fill}">
         <Path.Data>
           <PathGeometry>
             <PathGeometry.Figures>
@@ -24,8 +27,8 @@
           </PathGeometry>
         </Path.Data>
       </Path>
-      <TextBlock Canvas.Left="8" Canvas.Top="2" Text="{Binding RelativeSource={RelativeSource AncestorType=local:ProjectMarker}, Path=Occupants}" Foreground="White"/>
     </Canvas>
-
+    <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=local:ProjectMarker}, Path=Occupants}" Foreground="White"
+               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
   </Grid>
 </UserControl>
