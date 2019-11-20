@@ -23,8 +23,6 @@ namespace CM
         {
             _repository = repository;
 
-
-
             Persons = new ObservableCollection<Person>
             {
                 new Person
@@ -51,7 +49,42 @@ namespace CM
                 {
                     Name = "SZ",
                     Position = new Position(0,0)
-                }
+                },
+                new Person
+                {
+                    Name = "NBE",
+                    Position = new Position(0,0)
+                },
+                new Person
+                {
+                    Name = "AKL",
+                    Position = new Position(0,0)
+                },
+                new Person
+                {
+                    Name = "CST",
+                    Position = new Position(0,0)
+                },
+                new Person
+                {
+                    Name = "MH",
+                    Position = new Position(0,0)
+                },
+                new Person
+                {
+                    Name = "SMA",
+                    Position = new Position(0,0)
+                },
+                new Person
+                {
+                    Name = "AKF",
+                    Position = new Position(0,0)
+                },
+                new Person
+                {
+                    Name = "HS",
+                    Position = new Position(0,0)
+                },
             };
         }
 

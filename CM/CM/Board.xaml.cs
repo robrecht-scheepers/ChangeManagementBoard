@@ -176,16 +176,32 @@ namespace CM
 
                 if (_phaseIndications.ContainsKey(phase))
                 {
-                    var lineStart = PolarToPoint(_radii[0] - 0.2, lowAngle);
-                    var lineEnd = PolarToPoint(_radii[0], lowAngle);
                     Canvas.Children.Add(new Line
                     {
                         Stroke = new SolidColorBrush(_defaultLineColor),
                         StrokeThickness = _defaultLineThickness,
-                        X1 = lineStart.X,
-                        Y1 = lineStart.Y,
-                        X2 = lineEnd.X,
-                        Y2 = lineEnd.Y
+                        X1 = PolarToPoint(_radii[0], lowAngle).X,
+                        Y1 = PolarToPoint(_radii[0], lowAngle).Y,
+                        X2 = PolarToPoint(_radii[0]-0.1, lowAngle).X,
+                        Y2 = PolarToPoint(_radii[0]-0.1, lowAngle).Y,
+                    });
+                    Canvas.Children.Add(new Path
+                    {
+                        Stroke = new SolidColorBrush(_defaultLineColor),
+                        StrokeThickness = _defaultLineThickness,
+                        ToolTip = _phaseIndications[phase],
+                        Fill = new SolidColorBrush(_colors[0]),
+                        Data = new PathGeometry{Figures = new PathFigureCollection{new PathFigure
+                        {
+                            IsClosed = true,
+                            StartPoint = PolarToPoint(_radii[0]-0.1, lowAngle),
+                            Segments = new PathSegmentCollection
+                            {
+                                new LineSegment(PolarToPoint(_radii[0] - 0.15, lowAngle), true),
+                                new LineSegment(PolarToPoint(_radii[0] - 0.125, lowAngle + (180/NumberOfPhases)), true),
+                                
+                            }
+                        }}}
                     });
                 }
             }
