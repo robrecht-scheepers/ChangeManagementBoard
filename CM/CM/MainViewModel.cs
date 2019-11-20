@@ -4,19 +4,27 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CM.Data;
 using CM.MVVM;
 
 namespace CM
 {
     public class MainViewModel : ObservableObject
     {
+        private readonly DbRepository _repository;
         private const string ProjectNamePlaceholder = "_";
         private ObservableCollection<Person> _persons;
         private string _newPersonName;
         private RelayCommand _addPersonCommand;
+        private ObservableCollection<string> _projects;
+        private string _selectedProject;
 
-        public MainViewModel()
+        public MainViewModel(DbRepository repository)
         {
+            _repository = repository;
+
+
+
             Persons = new ObservableCollection<Person>
             {
                 new Person
@@ -45,6 +53,31 @@ namespace CM
                     Position = new Position(0,0)
                 }
             };
+        }
+
+        public ObservableCollection<string> Projects
+        {
+            get => _projects;
+            set => SetValue(ref _projects, value);
+        }
+
+        public string SelectedProject
+        {
+            get => _selectedProject;
+            set => SetValue(ref _selectedProject, value, SelectedProjectChanged);
+        }
+
+        private void SelectedProjectChanged()
+        {
+            if (string.IsNullOrEmpty(SelectedProject))
+            {
+                Persons = null;
+                return;
+            }
+
+            var task = _repository.GetParticipants(SelectedProject);
+            task.Wait();
+            Persons = new ObservableCollection<Person>(task.Result);
         }
 
         public ObservableCollection<Person> Persons

@@ -68,9 +68,28 @@ namespace CM.Data
         {
             
         }
-        #endregion
 
-        #region transactions
+        public async Task<List<string>> GetProjects()
+        {
+            const string commandText = "SELECT Name FROM Projects";
+            using (var dbConnection = GetConnection())
+            {
+                using (var command = new SQLiteCommand(dbConnection) {CommandText = commandText})
+                {
+                    dbConnection.Open();
+                    var reader = await command.ExecuteReaderAsync();
+                    var projects = new List<string>();
+                    if (!reader.HasRows)
+                        return projects;
+                    while (reader.Read())
+                    {
+                        projects.Add(reader.GetString(0));
+                    }
+
+                    return projects;
+                }
+            }
+        }
         
         public async Task AddProject(string name)
         {
@@ -97,7 +116,7 @@ namespace CM.Data
             var commandText = 
                 "SELECT pp.[Name],pp.Phase,pp.Resistance" +
                 "FROM ProjectParticipants p JOIN Projects p ON pp.Project = p.Id" +
-                "WHERE p.Name = @projectName");
+                "WHERE p.Name = @projectName";
             using (var dbConnection = GetConnection())
             {
                 using (var command = new SQLiteCommand(dbConnection){CommandText = commandText})

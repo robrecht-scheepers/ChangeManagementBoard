@@ -147,7 +147,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Data\CreateDatabase.sql" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\bg.png" />
     <Resource Include="Resources\icon-plus.png" />
