@@ -16,6 +16,15 @@ namespace CM
     public partial class Board : UserControl
     {
         // ***** Configuration *********************************************************
+        private readonly Dictionary<int, string> _phaseIndications = new Dictionary<int, string>
+        {
+            {1, "Im Dunkeln" },
+            {7, "die Herausforderung sehen" },
+            {10, "Anfangen"},
+            {13, "Ausrollen" },
+            {19, "Ergebnisse" },
+            {23, "Zeit für Neues" }
+        };
         private const string ProjectNamePlaceholder = "_";
         private const int NumberOfPhases = 24;
         private readonly Color _markerColor = Color.FromRgb(0, 58, 112);
@@ -164,6 +173,21 @@ namespace CM
                 labelPosition.Offset(-10, -10);
                 Canvas.SetLeft(label, labelPosition.X);
                 Canvas.SetTop(label, labelPosition.Y);
+
+                if (_phaseIndications.ContainsKey(phase))
+                {
+                    var lineStart = PolarToPoint(_radii[0] - 0.2, lowAngle);
+                    var lineEnd = PolarToPoint(_radii[0], lowAngle);
+                    Canvas.Children.Add(new Line
+                    {
+                        Stroke = new SolidColorBrush(_defaultLineColor),
+                        StrokeThickness = _defaultLineThickness,
+                        X1 = lineStart.X,
+                        Y1 = lineStart.Y,
+                        X2 = lineEnd.X,
+                        Y2 = lineEnd.Y
+                    });
+                }
             }
 
             DrawMarkers();
@@ -220,15 +244,8 @@ namespace CM
                     Canvas.SetLeft(marker, markerPosition.X);
                     Canvas.SetTop(marker, markerPosition.Y);
                     marker.Rotation = (angleStart + angleEnd) / 2;
-                    //marker.RenderTransform = new TransformGroup
-                    //{
-                    //    Children = new TransformCollection
-                    //    {
-                    //        new ScaleTransform(_markerSize/20, _markerSize/20),
-                    //        new RotateTransform((angleStart + angleEnd) / 2)
-                    //    },
-                    //}; 
-
+                    marker.RenderTransform = new ScaleTransform(_markerSize/20, _markerSize/20);
+                    
                     marker.MouseLeftButtonDown += BeginMarkerMove;
                     continue;
                 }
