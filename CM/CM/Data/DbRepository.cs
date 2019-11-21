@@ -61,7 +61,7 @@ namespace CM.Data
         private void CreateNewDatabase(string dbPath)
         {
             SQLiteConnection.CreateFile(dbPath);
-            RunSqlScript("CreateDB.sql");
+            RunSqlScript("CreateDatabase.sql");
         }
 
         public async Task Initialize()
@@ -69,7 +69,7 @@ namespace CM.Data
             
         }
 
-        public async Task<List<string>> GetProjects()
+        public List<string> GetProjects()
         {
             const string commandText = "SELECT Name FROM Projects";
             using (var dbConnection = GetConnection())
@@ -77,7 +77,7 @@ namespace CM.Data
                 using (var command = new SQLiteCommand(dbConnection) {CommandText = commandText})
                 {
                     dbConnection.Open();
-                    var reader = await command.ExecuteReaderAsync();
+                    var reader = command.ExecuteReader();
                     var projects = new List<string>();
                     if (!reader.HasRows)
                         return projects;
@@ -114,8 +114,8 @@ namespace CM.Data
         public async Task<IEnumerable<Person>> GetParticipants(string projectName)
         {
             var commandText = 
-                "SELECT pp.[Name],pp.Phase,pp.Resistance" +
-                "FROM ProjectParticipants p JOIN Projects p ON pp.Project = p.Id" +
+                "SELECT pp.[Name],pp.Phase,pp.Resistance " +
+                "FROM ProjectParticipants pp JOIN Projects p ON pp.Project = p.Id " +
                 "WHERE p.Name = @projectName";
             using (var dbConnection = GetConnection())
             {
@@ -144,6 +144,70 @@ namespace CM.Data
                 }
             }
         }
+
+        public async Task AddParticipant(string projectName, string participantName, int phase = 0, int resistance = 0)
+        {
+            var id = Guid.NewGuid();
+            const string commandText =
+                "INSERT INTO ProjectParticipants(Id,Project,[Name], Phase, Resistance) " +
+                "VALUES (@id, (SELECT Id FROM Projects WHERE Name = @projectName), @name, @phase,@resistance)";
+            using (var dbConnection = GetConnection())
+            {
+                using (var command = new SQLiteCommand(dbConnection) { CommandText = commandText })
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    command.Parameters.AddWithValue("@projectName", projectName);
+                    command.Parameters.AddWithValue("@name", participantName);
+                    command.Parameters.AddWithValue("@phase", phase);
+                    command.Parameters.AddWithValue("@resistance", resistance);
+                    dbConnection.Open();
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public async Task UpdateParticipant(string projectName, string participantName, int phase, int resistance)
+        {
+            var id = Guid.NewGuid();
+            const string commandText =
+                "UPDATE ProjectParticipants " +
+                "SET Phase = @phase, Resistance = @resistance " +
+                "WHERE Name = @name AND Project = (SELECT Id FROM Projects WHERE Name = @projectName)";
+            using (var dbConnection = GetConnection())
+            {
+                using (var command = new SQLiteCommand(dbConnection) { CommandText = commandText })
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    command.Parameters.AddWithValue("@projectName", projectName);
+                    command.Parameters.AddWithValue("@name", participantName);
+                    command.Parameters.AddWithValue("@phase", phase);
+                    command.Parameters.AddWithValue("@resistance", resistance);
+                    dbConnection.Open();
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public async Task DeleteParticipant(string projectName, string participantName)
+        {
+            var id = Guid.NewGuid();
+            const string commandText =
+                "DELETE FROM ProjectParticipants " +
+                "WHERE Name = @name AND Project = (SELECT Id FROM Projects WHERE Name = @projectName)";
+            using (var dbConnection = GetConnection())
+            {
+                using (var command = new SQLiteCommand(dbConnection) { CommandText = commandText })
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    command.Parameters.AddWithValue("@projectName", projectName);
+                    command.Parameters.AddWithValue("@name", participantName);
+                    dbConnection.Open();
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+
 
     }
 }
