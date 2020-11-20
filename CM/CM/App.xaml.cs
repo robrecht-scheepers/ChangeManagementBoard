@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
-using System.Windows.Navigation;
+
 using CM.Data;
 
 namespace CM
@@ -17,7 +13,8 @@ namespace CM
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            var rep = new DbRepository(@"c:\TEMP\CM\dev\");
+            var dataDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+            var rep = new DbRepository(dataDir);
             rep.Initialize().Wait();
             var vm = new MainViewModel(rep);
             var window = new MainWindow{DataContext = vm};

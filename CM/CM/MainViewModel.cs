@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Threading.Tasks;
 using CM.Data;
@@ -15,77 +16,17 @@ namespace CM
         private const string ProjectNamePlaceholder = "_";
         private ObservableCollection<Person> _persons;
         private string _newPersonName;
-        private RelayCommand _addPersonCommand;
+        private AsyncRelayCommand _addPersonCommand;
         private ObservableCollection<string> _projects;
         private string _selectedProject;
+        private string _newProjectName;
+        private AsyncRelayCommand _addProjectCommand;
 
         public MainViewModel(DbRepository repository)
         {
             _repository = repository;
-
-            Persons = new ObservableCollection<Person>
-            {
-                new Person
-                {
-                    Name = "_",
-                    Position = new Position(1,0)
-                },
-                new Person
-                {
-                    Name = "RS",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "OW",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "CT",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "SZ",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "NBE",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "AKL",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "CST",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "MH",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "SMA",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "AKF",
-                    Position = new Position(0,0)
-                },
-                new Person
-                {
-                    Name = "HS",
-                    Position = new Position(0,0)
-                },
-            };
+            Projects = new ObservableCollection<string>(_repository.GetProjects().OrderBy(x => x));
+            SelectedProject = Projects.FirstOrDefault();
         }
 
         public ObservableCollection<string> Projects
@@ -108,9 +49,40 @@ namespace CM
                 return;
             }
 
-            var task = _repository.GetParticipants(SelectedProject);
-            task.Wait();
-            Persons = new ObservableCollection<Person>(task.Result);
+            LoadProjectParticipants().Wait();
+        }
+
+        private async Task LoadProjectParticipants()
+        {
+            Persons = new ObservableCollection<Person>((await _repository.GetParticipants(SelectedProject)).OrderBy(x => x.Name));
+            foreach (var person in Persons)
+            {
+                person.PropertyChanged += async (s, a) => await _repository.UpdateParticipant(SelectedProject, person.Name,
+                    person.Position.Phase, person.Position.Resistance);
+            }
+        }
+
+        public string NewProjectName
+        {
+            get => _newProjectName;
+            set => SetValue(ref _newProjectName, value);
+        }
+
+        public AsyncRelayCommand AddProjectCommand => _addProjectCommand ?? (_addProjectCommand = new AsyncRelayCommand(AddProject, CanExecuteAddProject));
+
+        private async Task AddProject()
+        {
+            await _repository.AddProject(NewProjectName);
+            await _repository.AddParticipant(NewProjectName, ProjectNamePlaceholder, 1, 0);
+            Projects = new ObservableCollection<string>(_repository.GetProjects().OrderBy(x => x));
+            if (Projects.Contains(NewProjectName))
+                SelectedProject = NewProjectName;
+            NewProjectName = "";
+        }
+
+        private bool CanExecuteAddProject()
+        {
+            return !string.IsNullOrEmpty(NewProjectName) && !Projects.Contains(NewProjectName);
         }
 
         public ObservableCollection<Person> Persons
@@ -125,15 +97,13 @@ namespace CM
             set => SetValue(ref _newPersonName , value);
         }
 
-        public RelayCommand AddPersonCommand => _addPersonCommand ?? (_addPersonCommand = new RelayCommand(AddPerson, CanExecuteAddPerson));
+        public AsyncRelayCommand AddPersonCommand => _addPersonCommand ?? (_addPersonCommand = new AsyncRelayCommand(AddPerson, CanExecuteAddPerson));
 
-        private void AddPerson()
+        private async Task AddPerson()
         {
-            Persons.Add(new Person
-            {
-                Name = NewPersonName,
-                Position = new Position(0,0)
-            });
+            await _repository.AddParticipant( SelectedProject, NewPersonName, 0, 0);
+            await LoadProjectParticipants();
+
             NewPersonName = "";
         }
 

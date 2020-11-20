@@ -248,7 +248,7 @@ namespace CM
                         Fill = new SolidColorBrush(_markerColor),
                         Occupants = positions[position].Count - 1
                     };
-
+                    
                     if (marker.Occupants > 0)
                     {
                         marker.ToolTip = string.Join(",", positions[position].Where(x => x != ProjectNamePlaceholder));
